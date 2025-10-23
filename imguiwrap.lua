@@ -99,17 +99,9 @@ imguiWrap.GetKeyDown = function(key)
 	end
 end
 
-imguiWrap.TextColored = function(color, text)
-	if imguiWrap.isNewVer then
-		return imgui.TextColored(imgui.GetColorU32(color), text)
-	else
-		return imgui.TextColored(color, text)
-	end
-end
-
 imguiWrap.TextLinkOpenURL = function(text, link)
 	if imguiWrap.isNewVer then
-		return imguiWrap.TextLinkOpenURL(text, link)
+		return imgui.TextLinkOpenURL(text, link)
 	else
 		
 		local linkHoverColor = imgui.GetColorU32({0.4, 0.6, 0.8, 1})
@@ -139,6 +131,5 @@ imguiWrap.TextLinkOpenURL = function(text, link)
 	end
 	
 end
-
 
 return imguiWrap;

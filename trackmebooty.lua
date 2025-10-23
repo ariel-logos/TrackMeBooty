@@ -339,7 +339,7 @@ ashita.events.register('d3d_present', 'd3d_present_callback1', function ()
 
 				if os.clock() - incrcd < 2.5 and FindInTable(incridx, i) then
 					imgui.SameLine()
-					imguiWrap.TextColored(colors.green, '[+1]')
+					imgui.TextColored(colors.green, '[+1]')
 				elseif os.clock() - incrcd > 2.5 then
 					incridx = {}
 					imgui.SameLine()
@@ -352,7 +352,7 @@ ashita.events.register('d3d_present', 'd3d_present_callback1', function ()
 
 				local col = colors.white
 				if amounts[i] and tracked[i][3] > 0 and amounts[i] >= tracked[i][3] then col = colors.green end
-				imguiWrap.TextColored(col, '['..tostring(amounts[i])..(tracked[i][3] > 0 and '/'..tostring(tracked[i][3])..']' or ']'))
+				imgui.TextColored(col, '['..tostring(amounts[i])..(tracked[i][3] > 0 and '/'..tostring(tracked[i][3])..']' or ']'))
 			end
 		end
 		
