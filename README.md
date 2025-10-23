@@ -25,8 +25,8 @@ The text displaying the name of the items can also be clicked to open an the rel
 <br></br>
 
 ### Why pirates?
-When I developed this addon I was thinking about pirates thanks to some Spongebob episode.
-(<a href="https://www.youtube.com/watch?v=gY_Evx9Kn4c" target="_blank">For refrence...</a>)
+When I developed this addon I had pirates stuck in my head thanks to some Spongebob episode.
+(<a href="https://www.youtube.com/watch?v=gY_Evx9Kn4c" target="_blank">for refrence...</a>)
 
 ### Installation
 Go over the <a href="https://github.com/ariel-logos/trackmebooty/releases" target="_blank">Releases</a> page, download the latest version and unpack it in the add-on folder in your Ashita installation folder.
