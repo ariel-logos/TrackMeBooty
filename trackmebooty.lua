@@ -2,7 +2,7 @@ addon.name = 'TrackMeBooty'
 addon.author = 'Arielfy'
 addon.version = '0.1'
 addon.desc = 'Item Tracker'
-addon.link = 'Some link to my addon repo'
+addon.link = 'https://github.com/ariel-logos/TrackMeBooty'
 
 require 'common'
 imgui = require('imgui')
