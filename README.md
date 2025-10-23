@@ -27,6 +27,7 @@ The text displaying the name of the items can also be clicked to open an the rel
 ### Why pirates?
 When I developed this addon I had pirates stuck in my head thanks to some Spongebob episode.
 (<a href="https://www.youtube.com/watch?v=gY_Evx9Kn4c" target="_blank">for refrence...</a>)
+<br></br>
 
 ### Installation
 Go over the <a href="https://github.com/ariel-logos/trackmebooty/releases" target="_blank">Releases</a> page, download the latest version and unpack it in the add-on folder in your Ashita installation folder.
@@ -34,8 +35,9 @@ Go over the <a href="https://github.com/ariel-logos/trackmebooty/releases" targe
 
 ### Compatibility Issues
 No compatibility issues found so far.
+<br></br>
 
-#### Commands
+### Commands
 ```/addon load trackmebooty``` Loads the add-on in Ashita.
 
 ```/addon unload trackmebooty``` Unloads the add-on from Ashita.
