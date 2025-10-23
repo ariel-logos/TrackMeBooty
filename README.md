@@ -59,3 +59,9 @@ No compatibility issues found so far.
 ```/tmb loadlast``` Toggles the option of automatically loading the last loaded list when the addon is started.
 
 <br></br>
+
+#### How do I delete my item lists?
+There is no command to delete the files containing the saved lists as I don't feel comfortable to code in system calls to delete files automaticallly.
+To delete a saved list, navigate to your folder addon (```Ashita\addons\TrackMeBooty```) and locate the ```lists``` folder.
+Delete any list you want to remove directly from that folder.
+<br></br>
