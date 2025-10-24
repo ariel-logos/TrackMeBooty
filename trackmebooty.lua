@@ -383,10 +383,11 @@ ashita.events.register('d3d_present', 'd3d_present_callback1', function ()
 		winsizex, winsizey = imgui.CalcTextSize('Tracked Booty');
 		imgui.End()
 		
-		imgui.SetNextWindowSize({ winsizex, winsizex });
-		imgui.SetNextWindowPos({winposx-(winsizex/1.5), windowposy-(winsizex/2.5)});
-		
 		if os.clock() - incrcd < 2.5 then
+
+			imgui.SetNextWindowSize({ winsizex, winsizex });
+			imgui.SetNextWindowPos({winposx-(winsizex/1.5), windowposy-(winsizex/2.5)});
+		
 			if imgui.Begin('Bubble', true, windowFlags) then
 				if (bubbleId ~= nil) then
 					imgui.GetWindowDrawList():AddImage(bubbleId, {winposx-(winsizex/1.5), windowposy-(winsizex/2.5) }, {winposx+(winsizex/2.5) ,windowposy+(winsizex/1.5)}, {0,0}, {1,1}, imgui.GetColorU32({ 1.0, 1.0, 1.0, 1.0 }));
