@@ -1,6 +1,6 @@
 addon.name = 'TrackMeBooty'
 addon.author = 'Arielfy'
-addon.version = '0.1'
+addon.version = '0.2'
 addon.desc = 'Item Tracker'
 addon.link = 'https://github.com/ariel-logos/TrackMeBooty'
 
@@ -15,6 +15,7 @@ local settings = require('settings');
 
 local cd = 0
 local incrcd = 0
+local zonecd = 0
 local incridx = {}
 local maxlength = 0
 local invs = T{}
@@ -27,6 +28,7 @@ T{
 	white = { 1.0, 1.0, 1.0, 1.0},
 	green = { 0.0, 1.0, 0.0, 1.0},
 }
+local charsize
 local pirateTex
 local pirateId
 local bubbleTex
@@ -44,15 +46,17 @@ local function save_settings()
     settings.save('settings');
 end
 
-local function FindInTable(sometable, f)
+local function FindInTableT(sometable, f)
 	local idx = 0;
+	local result = {}
 	if sometable then
 		for _, t in pairs(sometable) do
 			
 			idx=idx+1;
-			if (t == f) then return idx end
+			if (t == f) then table.insert(result, idx) end
 		end
 	end
+	if #result > 0 then return result end
 	return nil
 end
 
@@ -79,8 +83,9 @@ ashita.events.register('load', 'load_callback1', function ()
 	pirateId = tonumber(ffi.cast("uint32_t", pirateTex));
 	bubbleTex = loadTexture('bubble');
 	bubbleId = tonumber(ffi.cast("uint32_t", bubbleTex));
-	
+	charsize = imgui.CalcTextSize('A')
 end);
+
 
 ashita.events.register('command', 'command_callback1', function (e)
 
@@ -248,153 +253,168 @@ end);
 
 ashita.events.register('d3d_present', 'd3d_present_callback1', function ()
 	-- The "main loop", runs once per frame
-	if not loaded then
-		loaded = true
-		print('[TMB] Ahoy, matey! Let’s be markin\' some booty fer keepin\'~')
-		if currentsettings.reloadlist and #currentsettings.lastlist > 0 then
-			AshitaCore:GetChatManager():QueueCommand(-1, '/tmb load '..currentsettings.lastlist)
-		end
-	end
 	
-	if (os.time() - cd > 1) then
-		local RM = AshitaCore:GetResourceManager()
-		local inv = AshitaCore:GetMemoryManager():GetInventory()
-		cd = os.time()
-		items = T{}
-		maxlength = 0
-		local idx = 1
+	if AshitaCore:GetMemoryManager():GetPlayer():GetLoginStatus() == 2 and os.clock() - zonecd > 3 then
+	
+		if not loaded then
+			loaded = true
+			print('[TMB] Ahoy, matey! Let’s be markin\' some booty fer keepin\'~')
+			if currentsettings.reloadlist and #currentsettings.lastlist > 0 then
+				AshitaCore:GetChatManager():QueueCommand(-1, '/tmb load '..currentsettings.lastlist)
+			end
+		end
 		
-		for i = 0, 16 do
-			invs[i] = {}
-			invs[i].size = inv:GetContainerCount(i)
-			for j = 1, invs[i].size do
-				local invitem = inv:GetContainerItem(i, j)
-				item = RM:GetItemById(invitem.Id)
-				
-				if item then
+		if (os.time() - cd > 1 and os.clock() - zonecd > 15) then
+			local RM = AshitaCore:GetResourceManager()
+			local inv = AshitaCore:GetMemoryManager():GetInventory()
+			cd = os.time()
+			items = T{}
+			maxlength = 0
+			local idx = 1
+			
+			for i = 0, 16 do
+				invs[i] = {}
+				invs[i].size = inv:GetContainerCount(i)
+				for j = 1, invs[i].size do
+					local invitem = inv:GetContainerItem(i, j)
+					item = RM:GetItemById(invitem.Id)
 					
-					if not items[item.Id] then
-						items[item.Id] = {}
-						items[item.Id].name = item.Name[1]
-						if invitem.Count then
-							items[item.Id].size = invitem.Count
+					if item then
+						
+						if not items[item.Id] then
+							items[item.Id] = {}
+							items[item.Id].name = item.Name[1]
+							if invitem.Count then
+								items[item.Id].size = invitem.Count
+							else
+								items[item.Id].size = 0
+							end
 						else
-							items[item.Id].size = 0
+							if invitem.Count then
+								items[item.Id].size = items[item.Id].size + invitem.Count
+							else
+								items[item.Id].size = 0
+							end
 						end
-					else
-						if invitem.Count then
-							items[item.Id].size = items[item.Id].size + invitem.Count
-						else
-							items[item.Id].size = 0
+						
+					end
+				end
+			end
+			
+			for i = 1, #tracked do
+				if tracked[i][2] < 0 then
+					
+					local t = RM:GetItemByName(tracked[i][1], 0)
+					tracked[i][2] = t.Id
+				end
+				if items[tracked[i][2]] then
+					if amounts[i] and items[tracked[i][2]].size > amounts[i] then
+						incrcd = os.clock()
+						for c = 1, items[tracked[i][2]].size - amounts[i] do
+							table.insert(incridx, i)
 						end
 					end
-					
-				end
-			end
-		end
-		
-		for i = 1, #tracked do
-			if tracked[i][2] < 0 then
-				
-				local t = RM:GetItemByName(tracked[i][1], 0)
-				tracked[i][2] = t.Id
-			end
-			if items[tracked[i][2]] then
-				if amounts[i] and items[tracked[i][2]].size > amounts[i] then
-					incrcd = os.clock()
-					table.insert(incridx, i)
-				end
-				amounts[i] = items[tracked[i][2]].size
-			else
-				amounts[i] = 0
-			end
-			if #tracked[i][1] > maxlength then maxlength = #tracked[i][1] end
-		end
-	end
-	
-	local dsize = imgui.GetIO().DisplaySize
-	imgui.SetNextWindowPos({dsize.x/2, dsize.y/2}, ImGuiCond_FirstUseEver);
-		local windowFlags = bit.bor(
-		ImGuiWindowFlags_NoDecoration, 
-		ImGuiWindowFlags_AlwaysAutoResize, 
-		ImGuiWindowFlags_NoFocusOnAppearing, 
-		ImGuiWindowFlags_NoNav,
-		ImGuiWindowFlags_NoBringToFrontOnFocus);
-	
-	local winposx, winposy
-	local winsizex, winsizey
-	
-	imgui.PushStyleColor(ImGuiCol_WindowBg, {0.1,0.1,0.1,1.0});
-	if imgui.Begin('Tracked booty', true, windowFlags) then
-		
-
-
-		imgui.Text('Tracked Booty')
-		imgui.Separator()
-		
-		for i = 1, #tracked do
-			if amounts[i] then
-				
-				imguiWrap.TextLinkOpenURL(tracked[i][1]..string.rep(' ',maxlength - #tracked[i][1]), 'https://www.bg-wiki.com/ffxi/'..tracked[i][1]:gsub(' ','_'))
-
-				if os.clock() - incrcd < 2.5 and FindInTable(incridx, i) then
-					imgui.SameLine()
-					imgui.TextColored(colors.green, '[+1]')
-				elseif os.clock() - incrcd > 2.5 then
-					incridx = {}
-					imgui.SameLine()
-					imgui.Text('    ')
+					amounts[i] = items[tracked[i][2]].size
 				else
+					amounts[i] = 0
+				end
+				if #tracked[i][1] > maxlength then maxlength = #tracked[i][1] end
+			end
+		end
+		
+		local dsize = imgui.GetIO().DisplaySize
+		imgui.SetNextWindowPos({dsize.x/2, dsize.y/2}, ImGuiCond_FirstUseEver);
+			local windowFlags = bit.bor(
+			ImGuiWindowFlags_NoDecoration, 
+			ImGuiWindowFlags_AlwaysAutoResize, 
+			ImGuiWindowFlags_NoFocusOnAppearing, 
+			ImGuiWindowFlags_NoNav,
+			ImGuiWindowFlags_NoBringToFrontOnFocus);
+		
+		local winposx, winposy
+		local winsizex, winsizey
+		
+		imgui.PushStyleColor(ImGuiCol_WindowBg, {0.1,0.1,0.1,1.0});
+		if imgui.Begin('Tracked booty', true, windowFlags) then
+			
+
+
+			imgui.Text('Tracked Booty')
+			imgui.Separator()
+			
+			for i = 1, #tracked do
+				if amounts[i] then
+					
+					imguiWrap.TextLinkOpenURL(tracked[i][1]..string.rep(' ',maxlength - #tracked[i][1]), 'https://www.bg-wiki.com/ffxi/'..tracked[i][1]:gsub(' ','_'))
+					
+					local f
+					if #incridx > 0 then f = FindInTableT(incridx, i) end 
+					if os.clock() - incrcd < 2.5 and f then
+						imgui.SameLine()
+						if #f > 9 then
+							imgui.SetCursorPosX(imgui.GetCursorPosX() - (charsize/2))
+						end			
+						imgui.TextColored(colors.green, (#f<10 and ' ' or '')..'[+'..#f..']')
+					elseif os.clock() - incrcd > 2.5 then
+						incridx = {}
+						imgui.SameLine()
+						imgui.Text('    ')
+					else
+						imgui.SameLine()
+						imgui.Text('    ')
+					end
 					imgui.SameLine()
-					imgui.Text('    ')
+					if f and #f > 9 then
+						imgui.SetCursorPosX(imgui.GetCursorPosX() - (charsize/2))
+					end	
+					local col = colors.white
+					if amounts[i] and tracked[i][3] > 0 and amounts[i] >= tracked[i][3] then col = colors.green end
+					imgui.TextColored(col, '['..tostring(amounts[i])..(tracked[i][3] > 0 and '/'..tostring(tracked[i][3])..']' or ']'))
 				end
-				imgui.SameLine()
-
-				local col = colors.white
-				if amounts[i] and tracked[i][3] > 0 and amounts[i] >= tracked[i][3] then col = colors.green end
-				imgui.TextColored(col, '['..tostring(amounts[i])..(tracked[i][3] > 0 and '/'..tostring(tracked[i][3])..']' or ']'))
 			end
+			
+			winposx, windowposy = imgui.GetWindowPos()
+			pwinsizex, pwinsizey = imgui.GetWindowSize()
+			winsizex, winsizey = imgui.CalcTextSize('Tracked Booty');
+			
+			
 		end
 		
-		winposx, windowposy = imgui.GetWindowPos()
-		pwinsizex, pwinsizey = imgui.GetWindowSize()
-		winsizex, winsizey = imgui.CalcTextSize('Tracked Booty');
-		
-		
-	end
-	
-	imgui.End()
-	imgui.PopStyleColor(1);
-	
-	if currentsettings.pirate then
-		imgui.SetNextWindowSize({ winsizex, winsizex });
-		imgui.SetNextWindowPos({winposx+pwinsizex-winsizex, windowposy-winsizex+16});
-		local windowFlags = bit.bor(ImGuiWindowFlags_NoDecoration, ImGuiWindowFlags_NoResize ,ImGuiWindowFlags_NoBackground, ImGuiWindowFlags_NoBringToFrontOnFocus, ImGuiWindowFlags_NoFocusOnAppearing, ImGuiWindowFlags_NoMove,ImGuiWindowFlags_NoSavedSettings);
-		
-		local positionStartX, positionStartY = imgui.GetCursorScreenPos();
-
-		if imgui.Begin('Pirate', true, windowFlags) then
-			if (pirateId ~= nil) then
-				imgui.GetWindowDrawList():AddImage(pirateId, {winposx+pwinsizex-winsizex, windowposy-winsizex+16}, {winposx+pwinsizex, windowposy+16}, {0,0}, {1,1}, imgui.GetColorU32({ 1.0, 1.0, 1.0, 1.0 }));
-			end
-		end
-		winposx, windowposy = imgui.GetWindowPos()
-		pwinsizex, pwinsizey = imgui.GetWindowSize()
-		winsizex, winsizey = imgui.CalcTextSize('Tracked Booty');
 		imgui.End()
+		imgui.PopStyleColor(1);
 		
-		if os.clock() - incrcd < 2.5 then
-
+		if currentsettings.pirate then
 			imgui.SetNextWindowSize({ winsizex, winsizex });
-			imgui.SetNextWindowPos({winposx-(winsizex/1.5), windowposy-(winsizex/2.5)});
-		
-			if imgui.Begin('Bubble', true, windowFlags) then
-				if (bubbleId ~= nil) then
-					imgui.GetWindowDrawList():AddImage(bubbleId, {winposx-(winsizex/1.5), windowposy-(winsizex/2.5) }, {winposx+(winsizex/2.5) ,windowposy+(winsizex/1.5)}, {0,0}, {1,1}, imgui.GetColorU32({ 1.0, 1.0, 1.0, 1.0 }));
+			imgui.SetNextWindowPos({winposx+pwinsizex-winsizex, windowposy-winsizex+16});
+			local windowFlags = bit.bor(ImGuiWindowFlags_NoDecoration, ImGuiWindowFlags_NoResize ,ImGuiWindowFlags_NoBackground, ImGuiWindowFlags_NoBringToFrontOnFocus, ImGuiWindowFlags_NoFocusOnAppearing, ImGuiWindowFlags_NoMove,ImGuiWindowFlags_NoSavedSettings);
+			
+			local positionStartX, positionStartY = imgui.GetCursorScreenPos();
+
+			if imgui.Begin('Pirate', true, windowFlags) then
+				if (pirateId ~= nil) then
+					imgui.GetWindowDrawList():AddImage(pirateId, {winposx+pwinsizex-winsizex, windowposy-winsizex+16}, {winposx+pwinsizex, windowposy+16}, {0,0}, {1,1}, imgui.GetColorU32({ 1.0, 1.0, 1.0, 1.0 }));
 				end
 			end
+			winposx, windowposy = imgui.GetWindowPos()
+			pwinsizex, pwinsizey = imgui.GetWindowSize()
+			winsizex, winsizey = imgui.CalcTextSize('Tracked Booty');
 			imgui.End()
+			
+			if os.clock() - incrcd < 2.5 then
+
+				imgui.SetNextWindowSize({ winsizex, winsizex });
+				imgui.SetNextWindowPos({winposx-(winsizex/1.5), windowposy-(winsizex/2.5)});
+			
+				if imgui.Begin('Bubble', true, windowFlags) then
+					if (bubbleId ~= nil) then
+						imgui.GetWindowDrawList():AddImage(bubbleId, {winposx-(winsizex/1.5), windowposy-(winsizex/2.5) }, {winposx+(winsizex/2.5) ,windowposy+(winsizex/1.5)}, {0,0}, {1,1}, imgui.GetColorU32({ 1.0, 1.0, 1.0, 1.0 }));
+					end
+				end
+				imgui.End()
+			end
 		end
+	elseif AshitaCore:GetMemoryManager():GetPlayer():GetLoginStatus() ~= 2 then
+		zonecd = os.clock()
 	end
 end);
 
