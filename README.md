@@ -19,10 +19,13 @@ Upon reaching the item quota (if specified) the relative item will be marked as 
 The text displaying the name of the items can also be clicked to open an the relative <a href="https://www.bg-wiki.com/" target="_blank">bg-wiki</a> page to read more about the item details and possible whereabouts in the game.
 
 <br></br>
-<p align="center">
-<img src="https://i.gyazo.com/ea417f20955e494507f31f303367121b.gif"/>
-</p>
+
+![1](https://github.com/user-attachments/assets/d3c14659-eec5-4a85-96ea-446118a8db27)|![2](https://github.com/user-attachments/assets/8bfa5ad6-8f4d-4313-b4e4-e68413362fd0)
+:-------------------------|-------------------------
+With best pirate fren on  | Without pirate fren :( 
+
 <br></br>
+      
 
 ### Why pirates?
 When I developed this addon I had pirates stuck in my head thanks to some Spongebob episode.
