@@ -13,9 +13,11 @@ Chat commands are used to customize the tracking, save and load lists and change
 ### Main features
 ${\textsf{\color{lime}{TrackMeBooty}}}$ presets itself as a small window and (if enabled) the picture of a friend pirate on top of it!
 Through several commands the player is able to track items of interest (e.g. materials for a crafting recipe).
+
 The main window will show the list of tracked items, the amount available to the player in all their inventories and the target quantity (if specified).
-Notifications are displayed in the form of text (i.e. \[+1\]) and a speech bubble from the friendly pirate (if enabled).
+Notifications are displayed in the form of text (e.g. \[+1\]) and a speech bubble from the friendly pirate (if enabled).
 Upon reaching the item quota (if specified) the relative item will be marked as complete (green text).
+
 The text displaying the name of the items can also be clicked to open an the relative <a href="https://www.bg-wiki.com/" target="_blank">bg-wiki</a> page to read more about the item details and possible whereabouts in the game.
 
 <br></br>
