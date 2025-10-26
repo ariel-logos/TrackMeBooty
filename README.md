@@ -11,7 +11,7 @@ Chat commands are used to customize the tracking, save and load lists and change
 <br></br>
 
 ### Main features
-${\textsf{\color{lime}{TrackMeBooty}}}$ presets itself as a small window and (if enabled) the picture of a friend pirate on top of it!
+${\textsf{\color{lime}{TrackMeBooty}}}$ presets itself as a small window and (if enabled) the picture of a pirate friend on top of it!
 Through several commands the player is able to track items of interest (e.g. materials for a crafting recipe).
 
 The main window will show the list of tracked items, the amount available to the player in all their inventories and the target quantity (if specified).
