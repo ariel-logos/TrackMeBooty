@@ -59,7 +59,7 @@ No compatibility issues found so far.
 
 ```/tmb list``` Prints the available lists saved by the player and available for loading.
 
-```/tmb pirate``` Toggles the images of the pirate and speech bubble (he'll be sad if hide him :<).
+```/tmb pirate``` Toggles the images of the pirate and speech bubble (he'll be sad if you hide him :<).
 
 ```/tmb loadlast``` Toggles the option of automatically loading the last loaded list when the addon is started.
 
